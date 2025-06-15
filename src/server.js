@@ -2,10 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
+const dotenvSafe = require("dotenv-safe");
 
-dotenv.config();
+dotenvSafe.config();
 
 const app = express();
 const PORT = 5000;
@@ -15,10 +15,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.MONGODB_URI);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 db.once("open", () => console.log("MongoDB connected"));
@@ -35,10 +32,10 @@ const Contact = mongoose.model("Contact", ContactSchema);
 
 // Nodemailer transporter
 const transporter = nodemailer.createTransport({
-  service: "gmail", // or your preferred provider
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER, // e.g. yourname@gmail.com
-    pass: process.env.EMAIL_PASS, // app password or real password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -54,7 +51,7 @@ app.post("/contact", async (req, res) => {
     // Send email
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_RECEIVER, // your destination email
+      to: process.env.EMAIL_RECEIVER,
       subject: "New Contact Form Submission",
       text: `
         Name: ${firstName} ${lastName}
